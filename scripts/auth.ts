@@ -11,7 +11,6 @@
 import { google } from 'googleapis';
 import * as http from 'http';
 import { URL } from 'url';
-import * as readline from 'readline';
 
 const SCOPES = ['https://www.googleapis.com/auth/tasks'];
 const REDIRECT_URI = 'http://localhost:3000/oauth/callback';
@@ -144,10 +143,8 @@ function startCallbackServer(oauth2Client: InstanceType<typeof google.auth.OAuth
   });
 }
 
-// Run if called directly
-if (require.main === module) {
-  authenticate().catch((error) => {
-    console.error('\n❌ Authentication failed:', error.message);
-    process.exit(1);
-  });
-}
+// Run authentication
+authenticate().catch((error) => {
+  console.error('\n❌ Authentication failed:', error.message);
+  process.exit(1);
+});
