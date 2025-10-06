@@ -51,12 +51,12 @@ Visit [Google Cloud Console](https://console.cloud.google.com/)
 ## Step 2: Install the MCP Server
 
 ```bash
-npm install -g @brandcast/google-tasks-mcp
+npm install -g @brandcast_app/google-tasks-mcp
 ```
 
 Or use without installing:
 ```bash
-npx @brandcast/google-tasks-mcp
+npx @brandcast_app/google-tasks-mcp
 ```
 
 ---
@@ -110,7 +110,7 @@ The script will output something like:
   "mcpServers": {
     "google-tasks": {
       "command": "npx",
-      "args": ["-y", "@brandcast/google-tasks-mcp"],
+      "args": ["-y", "@brandcast_app/google-tasks-mcp"],
       "env": {
         "GOOGLE_CLIENT_ID": "...",
         "GOOGLE_CLIENT_SECRET": "...",
@@ -155,7 +155,7 @@ Paste the configuration from Step 3.3. If the file already has content, merge it
   "mcpServers": {
     "google-tasks": {
       "command": "npx",
-      "args": ["-y", "@brandcast/google-tasks-mcp"],
+      "args": ["-y", "@brandcast_app/google-tasks-mcp"],
       "env": {
         "GOOGLE_CLIENT_ID": "your_actual_client_id",
         "GOOGLE_CLIENT_SECRET": "your_actual_secret",
@@ -232,8 +232,8 @@ Claude should list your task lists.
 **Problem:** npm package not installed
 
 **Solutions:**
-1. Install globally: `npm install -g @brandcast/google-tasks-mcp`
-2. Or use npx: `npx @brandcast/google-tasks-mcp`
+1. Install globally: `npm install -g @brandcast_app/google-tasks-mcp`
+2. Or use npx: `npx @brandcast_app/google-tasks-mcp`
 3. Or use full path to node: `"command": "node", "args": ["/path/to/dist/index.js"]`
 
 ### Port 3000 Already in Use

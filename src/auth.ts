@@ -69,7 +69,7 @@ async function authenticate() {
     mcpServers: {
       'google-tasks': {
         command: 'npx',
-        args: ['-y', '@brandcast/google-tasks-mcp'],
+        args: ['-y', '@brandcast_app/google-tasks-mcp'],
         env: {
           GOOGLE_CLIENT_ID: clientId,
           GOOGLE_CLIENT_SECRET: clientSecret,

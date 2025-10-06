@@ -28,7 +28,7 @@
 ### 2. Install the Package
 
 ```bash
-npm install -g @brandcast/google-tasks-mcp
+npm install -g @brandcast_app/google-tasks-mcp
 ```
 
 ### 3. Get Your Refresh Token
@@ -41,7 +41,7 @@ export GOOGLE_CLIENT_ID="your_client_id_here"
 export GOOGLE_CLIENT_SECRET="your_client_secret_here"
 
 # Run auth flow
-npx @brandcast/google-tasks-mcp auth
+npx @brandcast_app/google-tasks-mcp auth
 ```
 
 This will:
@@ -61,7 +61,7 @@ Add to your config file:
   "mcpServers": {
     "google-tasks": {
       "command": "npx",
-      "args": ["-y", "@brandcast/google-tasks-mcp"],
+      "args": ["-y", "@brandcast_app/google-tasks-mcp"],
       "env": {
         "GOOGLE_CLIENT_ID": "your_client_id_here",
         "GOOGLE_CLIENT_SECRET": "your_client_secret_here",
@@ -174,8 +174,8 @@ Update Claude Desktop config to use local build:
 - Verify the Tasks API is enabled in Google Cloud Console
 
 ### "Command not found"  
-- Make sure the package is installed: `npm install -g @brandcast/google-tasks-mcp`
-- Or use npx: `npx @brandcast/google-tasks-mcp`
+- Make sure the package is installed: `npm install -g @brandcast_app/google-tasks-mcp`
+- Or use npx: `npx @brandcast_app/google-tasks-mcp`
 
 ---
 

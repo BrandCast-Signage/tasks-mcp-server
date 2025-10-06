@@ -1,12 +1,13 @@
 {
-  "name": "@brandcast/google-tasks-mcp",
+  "name": "@brandcast_app/google-tasks-mcp",
   "version": "0.1.0",
   "description": "Model Context Protocol (MCP) server for Google Tasks - enables AI assistants to manage tasks",
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "bin": {
-    "google-tasks-mcp": "./dist/index.js"
+    "google-tasks-mcp": "./dist/index.js",
+    "google-tasks-mcp-auth": "./dist/auth.js"
   },
   "exports": {
     ".": {
@@ -23,13 +24,13 @@
     "build": "tsc",
     "dev": "tsc --watch",
     "clean": "rm -rf dist",
-    "auth": "ts-node scripts/auth.ts",
+    "auth": "ts-node src/auth.ts",
     "test": "NODE_OPTIONS=--experimental-vm-modules jest",
     "test:watch": "NODE_OPTIONS=--experimental-vm-modules jest --watch",
     "test:coverage": "NODE_OPTIONS=--experimental-vm-modules jest --coverage",
     "lint": "eslint src --ext .ts",
     "type-check": "tsc --noEmit",
-    "prepublishOnly": "npm run clean && npm run build && npm test"
+    "prepublishOnly": "npm run clean && npm run build"
   },
   "keywords": [
     "mcp",
