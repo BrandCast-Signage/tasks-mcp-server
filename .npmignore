@@ -1,0 +1,28 @@
+# Source files
+src/
+tests/
+*.test.ts
+*.spec.ts
+
+# Config files
+tsconfig.json
+jest.config.js
+.eslintrc.json
+.gitignore
+
+# Development
+coverage/
+.vscode/
+.idea/
+*.log
+.env
+.env.local
+
+# Git
+.git/
+.github/
+
+# Documentation (except README)
+docs/
+*.md
+!README.md
