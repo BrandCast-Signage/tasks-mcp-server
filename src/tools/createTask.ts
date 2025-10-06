@@ -1,5 +1,5 @@
 import { providerRegistry } from '../providers/index.js';
-import { TaskProvider, type ProviderAuth, type Task } from '../types/index.js';
+import { TaskProvider, type Task } from '../types/index.js';
 
 /**
  * MCP Tool: createTask
@@ -11,22 +11,9 @@ export const createTaskSchema = {
   inputSchema: {
     type: 'object' as const,
     properties: {
-      provider: {
-        type: 'string',
-        enum: Object.values(TaskProvider),
-        description: 'Task provider',
-      },
       listId: {
         type: 'string',
         description: 'ID of the task list to create task in',
-      },
-      accessToken: {
-        type: 'string',
-        description: 'OAuth access token',
-      },
-      refreshToken: {
-        type: 'string',
-        description: 'OAuth refresh token (optional)',
       },
       task: {
         type: 'object',
@@ -48,28 +35,19 @@ export const createTaskSchema = {
         required: ['title'],
       },
     },
-    required: ['provider', 'listId', 'accessToken', 'task'],
+    required: ['listId', 'task'],
   },
 };
 
 export async function handleCreateTask(args: {
-  provider: string;
   listId: string;
-  accessToken: string;
-  refreshToken?: string;
   task: {
     title: string;
     description?: string;
     due?: string;
   };
 }) {
-  const provider = providerRegistry.get(args.provider as TaskProvider);
-
-  const auth: ProviderAuth = {
-    provider: args.provider as TaskProvider,
-    accessToken: args.accessToken,
-    refreshToken: args.refreshToken,
-  };
+  const provider = providerRegistry.get(TaskProvider.GOOGLE);
 
   // Convert task data
   const taskData: Partial<Task> = {
@@ -78,7 +56,7 @@ export async function handleCreateTask(args: {
     due: args.task.due ? new Date(args.task.due) : undefined,
   };
 
-  const createdTask = await provider.createTask(auth, args.listId, taskData);
+  const createdTask = await provider.createTask(args.listId, taskData);
 
   return {
     content: [{

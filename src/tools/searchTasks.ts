@@ -1,32 +1,19 @@
 import { providerRegistry } from '../providers/index.js';
-import { TaskProvider, TaskStatus, type ProviderAuth, type TaskFilters } from '../types/index.js';
+import { TaskProvider, TaskStatus, type TaskFilters } from '../types/index.js';
 
 /**
  * MCP Tool: searchTasks
- * Search across all lists in a provider
+ * Search across all lists
  */
 export const searchTasksSchema = {
   name: 'searchTasks',
-  description: 'Search tasks across all lists in a provider',
+  description: 'Search tasks across all lists in Google Tasks',
   inputSchema: {
     type: 'object' as const,
     properties: {
-      provider: {
-        type: 'string',
-        enum: Object.values(TaskProvider),
-        description: 'Task provider',
-      },
       query: {
         type: 'string',
         description: 'Search query text',
-      },
-      accessToken: {
-        type: 'string',
-        description: 'OAuth access token',
-      },
-      refreshToken: {
-        type: 'string',
-        description: 'OAuth refresh token (optional)',
       },
       filters: {
         type: 'object',
@@ -44,26 +31,16 @@ export const searchTasksSchema = {
         },
       },
     },
-    required: ['provider', 'query', 'accessToken'],
+    required: ['query'],
   },
 };
 
 export async function handleSearchTasks(args: {
-  provider: string;
   query: string;
-  accessToken: string;
-  refreshToken?: string;
   filters?: TaskFilters;
 }) {
-  const provider = providerRegistry.get(args.provider as TaskProvider);
-
-  const auth: ProviderAuth = {
-    provider: args.provider as TaskProvider,
-    accessToken: args.accessToken,
-    refreshToken: args.refreshToken,
-  };
-
-  const tasks = await provider.searchTasks(auth, args.query, args.filters);
+  const provider = providerRegistry.get(TaskProvider.GOOGLE);
+  const tasks = await provider.searchTasks(args.query, args.filters);
 
   return {
     content: [{

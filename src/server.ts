@@ -108,7 +108,7 @@ export class TasksMCPServer {
           return await handleListProviders();
 
         case 'listTaskLists':
-          return await handleListTaskLists(args as Parameters<typeof handleListTaskLists>[0]);
+          return await handleListTaskLists();
 
         case 'getTasks':
           return await handleGetTasks(args as Parameters<typeof handleGetTasks>[0]);
@@ -129,7 +129,7 @@ export class TasksMCPServer {
           return await handleSearchTasks(args as Parameters<typeof handleSearchTasks>[0]);
 
         case 'syncAllTasks':
-          return await handleSyncAllTasks(args as Parameters<typeof handleSyncAllTasks>[0]);
+          return await handleSyncAllTasks(args as Parameters<typeof handleSyncAllTasks>[0] | undefined);
 
         default:
           throw new Error(`Unknown tool: ${name}`);

@@ -1,4 +1,4 @@
-import type { Task, TaskList, TaskFilters, ProviderAuth, TaskProvider } from './task.js';
+import type { Task, TaskList, TaskFilters, TaskProvider } from './task.js';
 
 /**
  * Provider capabilities metadata
@@ -14,6 +14,7 @@ export interface ProviderCapabilities {
 
 /**
  * Base class for all task provider adapters
+ * Providers manage their own authentication using environment variables
  */
 export abstract class BaseTaskProvider {
   abstract readonly id: TaskProvider;
@@ -23,13 +24,12 @@ export abstract class BaseTaskProvider {
   /**
    * Get all task lists for authenticated user
    */
-  abstract getTaskLists(auth: ProviderAuth): Promise<TaskList[]>;
+  abstract getTaskLists(): Promise<TaskList[]>;
 
   /**
    * Get tasks from a specific list
    */
   abstract getTasks(
-    auth: ProviderAuth,
     listId: string,
     filters?: TaskFilters
   ): Promise<Task[]>;
@@ -38,7 +38,6 @@ export abstract class BaseTaskProvider {
    * Create a new task
    */
   abstract createTask(
-    auth: ProviderAuth,
     listId: string,
     task: Partial<Task>
   ): Promise<Task>;
@@ -47,7 +46,6 @@ export abstract class BaseTaskProvider {
    * Update an existing task
    */
   abstract updateTask(
-    auth: ProviderAuth,
     taskId: string,
     listId: string,
     updates: Partial<Task>
@@ -57,7 +55,6 @@ export abstract class BaseTaskProvider {
    * Delete a task
    */
   abstract deleteTask(
-    auth: ProviderAuth,
     taskId: string,
     listId: string
   ): Promise<void>;
@@ -66,7 +63,6 @@ export abstract class BaseTaskProvider {
    * Search tasks across all lists
    */
   abstract searchTasks(
-    auth: ProviderAuth,
     query: string,
     filters?: TaskFilters
   ): Promise<Task[]>;
@@ -74,7 +70,7 @@ export abstract class BaseTaskProvider {
   /**
    * Validate authentication credentials
    */
-  abstract validateAuth(auth: ProviderAuth): Promise<boolean>;
+  abstract validateAuth(): Promise<boolean>;
 
   /**
    * Apply filters to a list of tasks (client-side filtering)

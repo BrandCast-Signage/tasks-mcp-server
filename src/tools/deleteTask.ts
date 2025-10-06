@@ -1,5 +1,5 @@
 import { providerRegistry } from '../providers/index.js';
-import { TaskProvider, type ProviderAuth } from '../types/index.js';
+import { TaskProvider } from '../types/index.js';
 
 /**
  * MCP Tool: deleteTask
@@ -11,11 +11,6 @@ export const deleteTaskSchema = {
   inputSchema: {
     type: 'object' as const,
     properties: {
-      provider: {
-        type: 'string',
-        enum: Object.values(TaskProvider),
-        description: 'Task provider',
-      },
       taskId: {
         type: 'string',
         description: 'ID of the task to delete',
@@ -24,35 +19,17 @@ export const deleteTaskSchema = {
         type: 'string',
         description: 'ID of the task list containing the task',
       },
-      accessToken: {
-        type: 'string',
-        description: 'OAuth access token',
-      },
-      refreshToken: {
-        type: 'string',
-        description: 'OAuth refresh token (optional)',
-      },
     },
-    required: ['provider', 'taskId', 'listId', 'accessToken'],
+    required: ['taskId', 'listId'],
   },
 };
 
 export async function handleDeleteTask(args: {
-  provider: string;
   taskId: string;
   listId: string;
-  accessToken: string;
-  refreshToken?: string;
 }) {
-  const provider = providerRegistry.get(args.provider as TaskProvider);
-
-  const auth: ProviderAuth = {
-    provider: args.provider as TaskProvider,
-    accessToken: args.accessToken,
-    refreshToken: args.refreshToken,
-  };
-
-  await provider.deleteTask(auth, args.taskId, args.listId);
+  const provider = providerRegistry.get(TaskProvider.GOOGLE);
+  await provider.deleteTask(args.taskId, args.listId);
 
   return {
     content: [{

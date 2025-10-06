@@ -6,13 +6,15 @@ import {
   TaskFilters,
   TaskProvider,
   TaskStatus,
-  ProviderAuth,
   type ProviderCapabilities,
 } from '../types/index.js';
 
 /**
  * Google Tasks provider implementation
- * Adapted from BrandCast's googleTasksService.ts
+ * Uses environment variables for authentication:
+ * - GOOGLE_CLIENT_ID
+ * - GOOGLE_CLIENT_SECRET
+ * - GOOGLE_REFRESH_TOKEN
  */
 export class GoogleTasksProvider extends BaseTaskProvider {
   readonly id = TaskProvider.GOOGLE;
@@ -26,33 +28,49 @@ export class GoogleTasksProvider extends BaseTaskProvider {
     search: false,          // No native search API, must filter client-side
   };
 
-  /**
-   * Create authenticated Google Tasks client
-   */
-  private async getClient(auth: ProviderAuth): Promise<tasks_v1.Tasks> {
-    // Get client credentials from environment
+  private oauth2Client: InstanceType<typeof google.auth.OAuth2>;
+  private tasksClient?: tasks_v1.Tasks;
+
+  constructor() {
+    super();
+
+    // Get credentials from environment
     const clientId = process.env['GOOGLE_CLIENT_ID'];
     const clientSecret = process.env['GOOGLE_CLIENT_SECRET'];
+    const refreshToken = process.env['GOOGLE_REFRESH_TOKEN'];
 
     if (!clientId || !clientSecret) {
       throw new Error('Google OAuth credentials not configured. Set GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET environment variables.');
     }
 
-    // Create OAuth2 client
-    const oauth2Client = new google.auth.OAuth2(clientId, clientSecret);
-    oauth2Client.setCredentials({
-      access_token: auth.accessToken,
-      refresh_token: auth.refreshToken,
+    if (!refreshToken) {
+      throw new Error('Google refresh token not configured. Run "npm run auth" to get your refresh token, then set GOOGLE_REFRESH_TOKEN environment variable.');
+    }
+
+    // Create OAuth2 client with credentials
+    this.oauth2Client = new google.auth.OAuth2(clientId, clientSecret);
+    this.oauth2Client.setCredentials({
+      refresh_token: refreshToken,
     });
 
-    return google.tasks({ version: 'v1', auth: oauth2Client });
+    // The OAuth client will automatically refresh access tokens when needed
+  }
+
+  /**
+   * Get authenticated Google Tasks client (lazy initialization)
+   */
+  private getClient(): tasks_v1.Tasks {
+    if (!this.tasksClient) {
+      this.tasksClient = google.tasks({ version: 'v1', auth: this.oauth2Client });
+    }
+    return this.tasksClient;
   }
 
   /**
    * Get all task lists for authenticated user
    */
-  async getTaskLists(auth: ProviderAuth): Promise<TaskList[]> {
-    const client = await this.getClient(auth);
+  async getTaskLists(): Promise<TaskList[]> {
+    const client = this.getClient();
 
     try {
       const response = await client.tasklists.list();
@@ -71,11 +89,10 @@ export class GoogleTasksProvider extends BaseTaskProvider {
    * Get tasks from a specific list
    */
   async getTasks(
-    auth: ProviderAuth,
     listId: string,
     filters?: TaskFilters
   ): Promise<Task[]> {
-    const client = await this.getClient(auth);
+    const client = this.getClient();
 
     try {
       // Get list name
@@ -128,11 +145,10 @@ export class GoogleTasksProvider extends BaseTaskProvider {
    * Create a new task
    */
   async createTask(
-    auth: ProviderAuth,
     listId: string,
     task: Partial<Task>
   ): Promise<Task> {
-    const client = await this.getClient(auth);
+    const client = this.getClient();
 
     try {
       // Build Google Tasks request body
@@ -166,12 +182,11 @@ export class GoogleTasksProvider extends BaseTaskProvider {
    * Update an existing task
    */
   async updateTask(
-    auth: ProviderAuth,
     taskId: string,
     listId: string,
     updates: Partial<Task>
   ): Promise<Task> {
-    const client = await this.getClient(auth);
+    const client = this.getClient();
 
     try {
       // Build Google Tasks update object
@@ -197,11 +212,10 @@ export class GoogleTasksProvider extends BaseTaskProvider {
    * Delete a task
    */
   async deleteTask(
-    auth: ProviderAuth,
     taskId: string,
     listId: string
   ): Promise<void> {
-    const client = await this.getClient(auth);
+    const client = this.getClient();
 
     try {
       await client.tasks.delete({
@@ -218,16 +232,15 @@ export class GoogleTasksProvider extends BaseTaskProvider {
    * Note: Google Tasks API doesn't support search, so we fetch all and filter
    */
   async searchTasks(
-    auth: ProviderAuth,
     query: string,
     filters?: TaskFilters
   ): Promise<Task[]> {
     // Get all task lists
-    const lists = await this.getTaskLists(auth);
+    const lists = await this.getTaskLists();
 
     // Fetch tasks from all lists
     const allTasksPromises = lists.map(list =>
-      this.getTasks(auth, list.id, filters).catch(() => [])
+      this.getTasks(list.id, filters).catch(() => [])
     );
 
     const allTasksArrays = await Promise.all(allTasksPromises);
@@ -244,9 +257,9 @@ export class GoogleTasksProvider extends BaseTaskProvider {
   /**
    * Validate authentication credentials
    */
-  async validateAuth(auth: ProviderAuth): Promise<boolean> {
+  async validateAuth(): Promise<boolean> {
     try {
-      const client = await this.getClient(auth);
+      const client = this.getClient();
       await client.tasklists.list({ maxResults: 1 });
       return true;
     } catch {

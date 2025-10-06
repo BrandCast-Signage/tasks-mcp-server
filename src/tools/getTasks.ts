@@ -1,5 +1,5 @@
 import { providerRegistry } from '../providers/index.js';
-import { TaskProvider, TaskStatus, type ProviderAuth, type TaskFilters } from '../types/index.js';
+import { TaskProvider, TaskStatus, type TaskFilters } from '../types/index.js';
 
 /**
  * MCP Tool: getTasks
@@ -11,22 +11,9 @@ export const getTasksSchema = {
   inputSchema: {
     type: 'object' as const,
     properties: {
-      provider: {
-        type: 'string',
-        enum: Object.values(TaskProvider),
-        description: 'Task provider',
-      },
       listId: {
         type: 'string',
         description: 'ID of the task list to retrieve tasks from',
-      },
-      accessToken: {
-        type: 'string',
-        description: 'OAuth access token',
-      },
-      refreshToken: {
-        type: 'string',
-        description: 'OAuth refresh token (optional)',
       },
       filters: {
         type: 'object',
@@ -48,26 +35,16 @@ export const getTasksSchema = {
         },
       },
     },
-    required: ['provider', 'listId', 'accessToken'],
+    required: ['listId'],
   },
 };
 
 export async function handleGetTasks(args: {
-  provider: string;
   listId: string;
-  accessToken: string;
-  refreshToken?: string;
   filters?: TaskFilters;
 }) {
-  const provider = providerRegistry.get(args.provider as TaskProvider);
-
-  const auth: ProviderAuth = {
-    provider: args.provider as TaskProvider,
-    accessToken: args.accessToken,
-    refreshToken: args.refreshToken,
-  };
-
-  const tasks = await provider.getTasks(auth, args.listId, args.filters);
+  const provider = providerRegistry.get(TaskProvider.GOOGLE);
+  const tasks = await provider.getTasks(args.listId, args.filters);
 
   return {
     content: [{

@@ -1,5 +1,5 @@
 import { providerRegistry } from '../providers/index.js';
-import { TaskProvider, TaskStatus, type ProviderAuth, type Task } from '../types/index.js';
+import { TaskProvider, TaskStatus, type Task } from '../types/index.js';
 
 /**
  * MCP Tool: updateTask
@@ -11,11 +11,6 @@ export const updateTaskSchema = {
   inputSchema: {
     type: 'object' as const,
     properties: {
-      provider: {
-        type: 'string',
-        enum: Object.values(TaskProvider),
-        description: 'Task provider',
-      },
       taskId: {
         type: 'string',
         description: 'ID of the task to update',
@@ -23,14 +18,6 @@ export const updateTaskSchema = {
       listId: {
         type: 'string',
         description: 'ID of the task list containing the task',
-      },
-      accessToken: {
-        type: 'string',
-        description: 'OAuth access token',
-      },
-      refreshToken: {
-        type: 'string',
-        description: 'OAuth refresh token (optional)',
       },
       updates: {
         type: 'object',
@@ -56,16 +43,13 @@ export const updateTaskSchema = {
         },
       },
     },
-    required: ['provider', 'taskId', 'listId', 'accessToken', 'updates'],
+    required: ['taskId', 'listId', 'updates'],
   },
 };
 
 export async function handleUpdateTask(args: {
-  provider: string;
   taskId: string;
   listId: string;
-  accessToken: string;
-  refreshToken?: string;
   updates: {
     title?: string;
     description?: string;
@@ -73,13 +57,7 @@ export async function handleUpdateTask(args: {
     status?: TaskStatus;
   };
 }) {
-  const provider = providerRegistry.get(args.provider as TaskProvider);
-
-  const auth: ProviderAuth = {
-    provider: args.provider as TaskProvider,
-    accessToken: args.accessToken,
-    refreshToken: args.refreshToken,
-  };
+  const provider = providerRegistry.get(TaskProvider.GOOGLE);
 
   // Convert updates
   const updates: Partial<Task> = {
@@ -89,7 +67,7 @@ export async function handleUpdateTask(args: {
     ...(args.updates.status !== undefined && { status: args.updates.status }),
   };
 
-  const updatedTask = await provider.updateTask(auth, args.taskId, args.listId, updates);
+  const updatedTask = await provider.updateTask(args.taskId, args.listId, updates);
 
   return {
     content: [{
